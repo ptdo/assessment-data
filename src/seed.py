@@ -1,0 +1,1 @@
+# This file is where you will seed your Postgres database with the sample data from the data directory.
