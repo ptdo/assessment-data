@@ -5,10 +5,6 @@ try:
     conn = psycopg2.connect("host=postgres dbname=assessment user=postgres password=example port=5432")
     cur = conn.cursor()
 
-    cur.execute('drop table if exists employee')
-    cur.execute('drop table if exists expense')
-    cur.execute('drop table if exists employees')
-    cur.execute('drop table if exists expenses')
     # Create Employees table 
     cur.execute("""
         create table if not exists employees (

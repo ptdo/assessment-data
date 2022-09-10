@@ -4,7 +4,11 @@ import psycopg2
 def printResults(message, query, cursor):
     cursor.execute(query)
     record = cursor.fetchone()
-    print(f"{message}: $ {record[0]} by {record[1]}")
+
+    if record:
+        print(f"{message}: $ {round(record[0], 2)} by {record[1]}")
+    else:
+        print(f"{message}: None")
 
 try:
     conn = psycopg2.connect("host=postgres dbname=assessment user=postgres password=example port=5432")
@@ -35,13 +39,13 @@ try:
     """
     printResults('Overall highest expense for Q1 2022', highestExpenseQ1, cur)
 
-    # Query to get the employee with the greatest AVERAGE expenses
+    # Query to get the employee with the greatest AVERAGE expenses (per day)
     highestAvgExpense = """
         select MAX(a.avgCost), e.name, e.employeeId
         from employees e, 
             (select AVG(exp.cost) as avgCost, exp.metadata->>'employeeId' as id
             from expenses exp
-            group by(id)) as a 
+            group by(exp.metadata)) as a 
         where e.employeeId = uuid(a.id)
         group by(e.employeeId);
     """
