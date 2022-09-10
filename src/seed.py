@@ -2,7 +2,7 @@
 import psycopg2
 
 EMPLOYEE_DATA_FILE = './data/employees.csv'
-EXPENSE_DATA_FILE = './data/employees.csv'
+EXPENSE_DATA_FILE = './data/expenses.csv'
 EMPLOYEE_TABLE_NAME = 'employees'
 EXPENSE_TABLE_NAME = 'expenses'
 

@@ -12,38 +12,38 @@ try:
 
     # Query to get the employee with the greatest TOTAL expenses
     highestExpense = """
-        select MAX(a.totalCost), e.name
+        select MAX(a.totalCost), e.name, e.employeeId
         from employees e, 
             (select SUM(exp.cost) as totalCost, exp.metadata->>'employeeId' as id
             from expenses exp
             group by(id)) as a 
         where e.employeeId = uuid(a.id)
-        group by (e.name);
+        group by(e.employeeId);
     """
     printResults('Overall highest expense', highestExpense, cur)
 
     # Query to get the employee with the greatest TOTAL expenses in Q1 2022
     highestExpenseQ1 = """
-        select MAX(a.totalCost), e.name
+        select MAX(a.totalCost), e.name, e.employeeId
         from employees e, 
             (select SUM(exp.cost) as totalCost, exp.metadata->>'employeeId' as id
             from expenses exp
             where TO_DATE(exp.metadata->>'date', 'YYYY/MM/DD') between '2022-01-01' and '2022-01-31'
             group by(id)) as a 
         where e.employeeId = uuid(a.id)
-        group by (e.name);
+        group by(e.employeeId);
     """
     printResults('Overall highest expense for Q1 2022', highestExpenseQ1, cur)
 
     # Query to get the employee with the greatest AVERAGE expenses
     highestAvgExpense = """
-        select MAX(a.totalCost), e.name
+        select MAX(a.avgCost), e.name, e.employeeId
         from employees e, 
-            (select AVG(exp.cost) as totalCost, exp.metadata->>'employeeId' as id
+            (select AVG(exp.cost) as avgCost, exp.metadata->>'employeeId' as id
             from expenses exp
             group by(id)) as a 
         where e.employeeId = uuid(a.id)
-        group by (e.name);
+        group by(e.employeeId);
     """
     printResults('Overall highest average expense', highestAvgExpense, cur)
 
