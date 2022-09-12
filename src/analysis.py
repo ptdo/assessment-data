@@ -18,11 +18,11 @@ try:
     highestExpense = """
         select totalCost, e.name, e.employeeId
         from employees e, 
-            (select SUM(exp.cost) as totalCost, exp.metadata->>'employeeId' as id
+            (select SUM(exp.cost) as totalCost, uuid(exp.metadata->>'employeeId') as id
             from expenses exp
             group by(id)) as a 
-        where e.employeeId = uuid(a.id)
-        order by totalCost desc
+        where e.employeeId = a.id
+        order by totalCost desc;
     """
     printResults('Overall highest expense', highestExpense, cur)
 
@@ -30,26 +30,25 @@ try:
     highestExpenseQ1 = """
         select totalCost, e.name, e.employeeId
         from employees e, 
-            (select SUM(exp.cost) as totalCost, exp.metadata->>'employeeId' as id
+            (select SUM(exp.cost) as totalCost, uuid(exp.metadata->>'employeeId') as id
             from expenses exp
             where TO_DATE(exp.metadata->>'date', 'YYYY/MM/DD') between '2022-01-01' and '2022-01-31'
             group by(id)) as a 
-        where e.employeeId = uuid(a.id)
-        order by totalCost desc
-        limit 1;
+        where e.employeeId = a.id
+        order by totalCost desc;
     """
     printResults('Overall highest expense for Q1 2022', highestExpenseQ1, cur)
 
-    # Query to get the employee with the greatest AVERAGE expenses (per day)
+    # Query to get the employee with the greatest AVERAGE daily expenses
     highestAvgExpense = """
-        select avgCost, e.name, e.employeeId
-        from employees e, 
-            (select AVG(exp.cost) as avgCost, exp.metadata->>'employeeId' as id, extract(month from date exp.metadata->>'date')) as month
+        select SUM(dailyCost)/SUM(totalDays) as avgCost, e.name
+        from employees e,
+            (select SUM(exp.cost) as dailyCost, exp.metadata, count(distinct exp.metadata->>'date') as totalDays
             from expenses exp
-            group by(month)) as a 
-        where e.employeeId = uuid(a.id)
-        order by avgCost desc
-        limit 1;
+            group by(exp.metadata)) as a
+        where e.employeeId = uuid(a.metadata->>'employeeId')
+        group by (e.employeeId)
+        order by avgCost desc;
     """
     printResults('Overall highest daily average expense', highestAvgExpense, cur)
 
