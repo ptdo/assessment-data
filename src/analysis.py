@@ -14,6 +14,8 @@ try:
     conn = psycopg2.connect("host=postgres dbname=assessment user=postgres password=example port=5432")
     cur = conn.cursor()
 
+    print("Summary of transactions:\n")
+
     # Query to get the employee with the greatest TOTAL expenses
     highestExpense = """
         select totalCost, e.name, e.employeeId
