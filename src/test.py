@@ -3,10 +3,23 @@ import psycopg2
 
 def printResults(message, query, cursor):
     cursor.execute(query)
-    record = cursor.fetchone()
+    records = cursor.fetchall()
 
-    if record:
-        print(f"{message}: $ {round(record[0], 2)} by {record[1]}")
+    if records:
+        print(f"{message}: \n")
+        for record in records:
+            print(f"{round(record[0], 2)} by {record[1]}")
+    else:
+        print(f"{message}: No results")
+
+def print2(message, query, cursor):
+    cursor.execute(query)
+    records = cursor.fetchall()
+
+    if records:
+        print(f"{message}: \n")
+        for record in records:
+            print(f"{record}")
     else:
         print(f"{message}: No results")
 
@@ -16,42 +29,40 @@ try:
 
     # Query to get the employee with the greatest TOTAL expenses
     highestExpense = """
-        select totalCost, e.name, e.employeeId
+        select totalCost, e.name
         from employees e, 
             (select SUM(exp.cost) as totalCost, exp.metadata->>'employeeId' as id
             from expenses exp
             group by(id)) as a 
         where e.employeeId = uuid(a.id)
-        order by totalCost desc
+        order by totalCost desc;
     """
     printResults('Overall highest expense', highestExpense, cur)
 
     # Query to get the employee with the greatest TOTAL expenses in Q1 2022
     highestExpenseQ1 = """
-        select totalCost, e.name, e.employeeId
+        select totalCost, e.name
         from employees e, 
             (select SUM(exp.cost) as totalCost, exp.metadata->>'employeeId' as id
             from expenses exp
             where TO_DATE(exp.metadata->>'date', 'YYYY/MM/DD') between '2022-01-01' and '2022-01-31'
             group by(id)) as a 
         where e.employeeId = uuid(a.id)
-        order by totalCost desc
-        limit 1;
+        order by totalCost desc;
     """
     printResults('Overall highest expense for Q1 2022', highestExpenseQ1, cur)
 
-    # Query to get the employee with the greatest AVERAGE expenses (per day)
+    # Query to get the employee with the greatest AVERAGE expenses (per month)
     highestAvgExpense = """
-        select avgCost, e.name, e.employeeId
+        select (a.totalCost/a.totalDays) as avgCost, e.name
         from employees e, 
-            (select AVG(exp.cost) as avgCost, exp.metadata->>'employeeId' as id, extract(month from date exp.metadata->>'date')) as month
+            (select SUM(exp.cost) as totalCost, exp.metadata->>'employeeId' as id, count(*) as totalDays
             from expenses exp
-            group by(month)) as a 
+            group by(exp.metadata)) as a 
         where e.employeeId = uuid(a.id)
-        order by avgCost desc
-        limit 1;
+        order by avgCost desc;
     """
-    printResults('Overall highest daily average expense', highestAvgExpense, cur)
+    printResults('Overall highest monthly average expense', highestAvgExpense, cur)
 
     cur.close()
     conn.close()
