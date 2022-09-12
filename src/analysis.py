@@ -26,7 +26,7 @@ try:
         where e.employeeId = a.id
         order by totalCost desc;
     """
-    printResults('Overall highest expense', highestExpense, cur)
+    printResults('1. Overall highest expense', highestExpense, cur)
 
     # Query to get the employee with the greatest TOTAL expenses in Q1 2022
     highestExpenseQ1 = """
@@ -39,7 +39,7 @@ try:
         where e.employeeId = a.id
         order by totalCost desc;
     """
-    printResults('Overall highest expense for Q1 2022', highestExpenseQ1, cur)
+    printResults('2. Overall highest expense for Q1 2022', highestExpenseQ1, cur)
 
     # Query to get the employee with the greatest AVERAGE daily expenses
     highestAvgExpense = """
@@ -52,7 +52,7 @@ try:
         group by (e.employeeId)
         order by avgCost desc;
     """
-    printResults('Overall highest daily average expense', highestAvgExpense, cur)
+    printResults('3. Overall highest daily average expense', highestAvgExpense, cur)
 
     cur.close()
     conn.close()
